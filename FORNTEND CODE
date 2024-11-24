@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Classroom</title>
+</head>
+<body>
+    <h1>Welcome to the Virtual Classroom</h1>
+    <h2>Available Courses</h2>
+    <div id="courses"></div>
+
+    <h2>Upload Course Materials</h2>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" />
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        const API_BASE_URL = "http://your-ec2-or-api-gateway-url";
+
+        async function fetchCourses() {
+            const response = await fetch(`${API_BASE_URL}/courses`);
+            const courses = await response.json();
+            const coursesDiv = document.getElementById('courses');
+            courses.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.innerHTML = `<h3>${course.name}</h3><p>${course.description}</p>`;
+                coursesDiv.appendChild(courseElement);
+            });
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch(`${API_BASE_URL}/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            alert(`File uploaded! URL: ${result.file_url}`);
+        });
+
+        fetchCourses();
+    </script>
+</body>
+</html>
